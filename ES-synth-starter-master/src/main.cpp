@@ -9,34 +9,6 @@
 U8G2_SSD1305_128X32_NONAME_F_HW_I2C u8g2(U8G2_R0);
 
 
-// sampleISR
-// void sampleISR() {
-//   digitalToggle(LED_BUILTIN);
-//   static int32_t phaseAcc = 0;
-//   phaseAcc += currentStepSize;
-//   static uint32_t local_timestep [12] = {
-//     0, 0, 0, 0,
-//     0, 0, 0, 0,
-//     0, 0, 0, 0
-//   };
-  
-//   int32_t Vout = 0;
-//   for(int i=0; i< element ;i++){
-//     local_timestep[a[i]] += 1;
-//     if(local_timestep[a[i]]>tableSizes_sub1[a[i]]){
-//         local_timestep[a[i]] = 0;
-//     };
-//     Vout += centralOctaveLookUpTable.accessTable(a[i],local_timestep[a[i]]);
-//   };
-  
-//   if(element != 0 ){
-//     Vout = Vout / element;
-//     analogWrite(OUTR_PIN, Vout + 128);
-//   }
-//   digitalToggle(LED_BUILTIN);
-// }
-
-
 
 //Display Sound and scan key
   volatile uint8_t element;
@@ -46,11 +18,9 @@ void sampleISR() {
   static uint32_t readCtr = 0;
   if (readCtr == SAMPLE_BUFFER_SIZE) {
     // xSemaphoreTakeFromISR(sampleBufferSemaphore, NULL);
-   
     readCtr = 0;
     writeBuffer1 = !writeBuffer1;
     xSemaphoreGiveFromISR(sampleBufferSemaphore, NULL);
-
   }
   if (writeBuffer1){
     analogWrite(OUTR_PIN, sampleBuffer0[readCtr++]);
@@ -107,21 +77,18 @@ void scanKeysTask(void * pvParameters) {
         delayMicroseconds(3);
         localkeyArray[i] = readCols();
     }
-    xSemaphoreTake(keyArrayMutex, portMAX_DELAY);
-    std::copy(localkeyArray,localkeyArray+7,keyArray);
-    xSemaphoreGive(keyArrayMutex);
 
-    /// send message if any key changed
+    // xSemaphoreTake(keyArrayMutex, portMAX_DELAY);
+    // std::copy(localkeyArray,localkeyArray+7,keyArray);
+    // xSemaphoreGive(keyArrayMutex);
+
     current_keys = localkeyArray[2] << 8 | localkeyArray[1] << 4 | localkeyArray[0];
-    //previous_keys = previouslocalkeyArray[2] << 8 | previouslocalkeyArray[1] << 4 | previouslocalkeyArray[0];
     xor_keys = current_keys ^ previous_keys;
 
-    
     /// modified sound map for local key press 
     current_keys_shifted = current_keys;
     
     if ((xor_keys) != 0){
-
       local_octave = __atomic_load_n(&octave, __ATOMIC_RELAXED);
    
       for (int i = 0; i < 12; i++){
@@ -138,27 +105,6 @@ void scanKeysTask(void * pvParameters) {
       previous_keys = current_keys; 
     }
   }
-
-
-  // while(1){
-  //   vTaskDelayUntil( &xLastWakeTime, xFrequency );
-
-  //   for(int i=0; i<3; i++){
-  //       setRow(i);
-  //       delayMicroseconds(3);
-  //       uint8_t keys = readCols();
-  //       keyArray[i] = keys;
-  //   }
-    
-   
-  //   // uint16_t B3 = ((uint16_t)keyArray[2]) << 8;
-  //   // uint16_t B2 = ((uint16_t)keyArray[1]) << 4;
-  //   // uint16_t B99 = (uint16_t)keyArray[0];
-  //   uint16_t keyArray_concated = keyArray[2] << 8 | keyArray[1] << 4 | keyArray[0];
-  //   //  = B3 | B2| B99;
-    
-  //   __atomic_store_n(&global_keyArray_concated, keyArray_concated, __ATOMIC_RELAXED);
-  // }
 }
 
 //displaying keysarray 
@@ -208,18 +154,6 @@ void setup() {
   setOutMuxBit(DRST_BIT, HIGH);  //Release display logic reset
   u8g2.begin();
   setOutMuxBit(DEN_BIT, HIGH);  //Enable display power supply
-
-  //Initialise UART
-  
-  Serial.println("Hello World");
-
-
-  std::vector <uint16_t> tmp;
-  sound_table.insert(std::make_pair(octave,tmp ));
-  Serial.print("check map size");
-  Serial.println(sound_table.size());
-
-
   // Timer Setting
   sampleTimer->setOverflow(22000, HERTZ_FORMAT);
   sampleTimer->attachInterrupt(sampleISR);

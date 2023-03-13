@@ -67,19 +67,24 @@ extern SemaphoreHandle_t sound_tableMutex;
 
 extern SemaphoreHandle_t sampleBufferSemaphore;
 extern volatile uint16_t global_keyArray_concated;
-extern uint32_t local_timestep [12];
-const uint16_t SAMPLE_BUFFER_SIZE = 168;
-extern uint8_t sampleBuffer0[SAMPLE_BUFFER_SIZE];
-extern uint8_t sampleBuffer1[SAMPLE_BUFFER_SIZE];
+
 extern volatile bool writeBuffer1;
 extern volatile bool outBits[8];
 
 
-extern std::map<uint8_t, std::vector<uint16_t> > sound_table; 
-extern std::map<uint8_t, uint8_t> position_table;
-extern volatile bool reorganising;
-extern volatile bool previous_west;
-extern volatile bool previous_east;
+
+//Activating part
+extern uint32_t local_timestep [12];
+const uint16_t SAMPLE_BUFFER_SIZE = 168;
+extern uint8_t sampleBuffer0[SAMPLE_BUFFER_SIZE];
+extern uint8_t sampleBuffer1[SAMPLE_BUFFER_SIZE];
+
+struct Key {
+    uint8_t octave;
+    uint8_t key_index;
+};
+
+extern Key sound_table [12];
 
 //setup function
 void setPinDirections();
