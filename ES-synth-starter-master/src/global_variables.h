@@ -68,7 +68,7 @@ extern SemaphoreHandle_t sound_tableMutex;
 extern SemaphoreHandle_t sampleBufferSemaphore;
 extern volatile uint16_t global_keyArray_concated;
 extern uint32_t local_timestep [12];
-const uint16_t SAMPLE_BUFFER_SIZE = 4;
+const uint16_t SAMPLE_BUFFER_SIZE = 168;
 extern uint8_t sampleBuffer0[SAMPLE_BUFFER_SIZE];
 extern uint8_t sampleBuffer1[SAMPLE_BUFFER_SIZE];
 extern volatile bool writeBuffer1;

@@ -85,7 +85,7 @@ void setRow(uint8_t rowIdx)
 //scanning the key and update currentStepSize, Keysarray 
 void scanKeysTask(void * pvParameters) {
   Serial.println("inside scankeys task");
-  const TickType_t xFrequency = 70 / portTICK_PERIOD_MS;
+  const TickType_t xFrequency = 50 / portTICK_PERIOD_MS;
   // xFrequency initiation interval of task set to 50ms
   TickType_t xLastWakeTime = xTaskGetTickCount();
   // xLastWakeTime will store the time (tick count) of the last initiation.
@@ -98,7 +98,6 @@ void scanKeysTask(void * pvParameters) {
   uint32_t xor_keys;
   uint8_t local_octave;
   bool pressed;
-
 
   while (1) {
     vTaskDelayUntil( &xLastWakeTime, xFrequency );
@@ -116,9 +115,7 @@ void scanKeysTask(void * pvParameters) {
     current_keys = localkeyArray[2] << 8 | localkeyArray[1] << 4 | localkeyArray[0];
     //previous_keys = previouslocalkeyArray[2] << 8 | previouslocalkeyArray[1] << 4 | previouslocalkeyArray[0];
     xor_keys = current_keys ^ previous_keys;
-    // Serial.print("xor: ");
-    // Serial.println(xor_keys, BIN);
-    // for sound output
+
     
     /// modified sound map for local key press 
     current_keys_shifted = current_keys;
