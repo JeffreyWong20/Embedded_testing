@@ -72,8 +72,8 @@ void scanKeysTask(void * pvParameters) {
       for (int i = 0; i < 12; i++){
         if ((xor_keys & 1) == 1){
           pressed = !(current_keys_shifted & 1);
-          // modified_soundMap(local_octave, i, pressed);
-          modified_soundArray(local_octave, i, pressed);
+          modified_soundMap(local_octave, i, pressed);
+          //modified_soundArray(local_octave, i, pressed);
           // sendMessage(i, pressed);
         }
         xor_keys = xor_keys >> 1;

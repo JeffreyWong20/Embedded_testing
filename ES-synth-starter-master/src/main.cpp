@@ -69,7 +69,7 @@ void sampleISR() {
   //Serial.println(sound_table.size());
   //xSemaphoreGive(sound_tableMutex);
 
-  analogWrite(OUTR_PIN, Vout + 128);
+  // analogWrite(OUTR_PIN, Vout + 128);
   Serial.print(Vout);
   
   digitalToggle(LED_BUILTIN);
