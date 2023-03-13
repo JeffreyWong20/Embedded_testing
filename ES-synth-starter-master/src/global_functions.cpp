@@ -27,3 +27,32 @@ void modified_soundMap(uint8_t local_octave, uint8_t key_index, bool append){
   }
   xSemaphoreGive(sound_tableMutex);
 }
+
+
+///  append or delete the given [octave,key_index] from the global sound_map
+void modified_soundArray(uint8_t local_octave, uint8_t key_index, bool append){
+
+  xSemaphoreTake(sound_tableMutex, portMAX_DELAY);
+  if (append) {
+    //pressed
+    sound_array[local_octave] = sound_array[local_octave]+pow(2,key_index);
+    // Serial.print("PUSH BACK:");
+    // Serial.println(key_index);
+    // for (int inc_vec = 0; inc_vec < sound_table.find(local_octave)->second.size(); inc_vec ++ ){
+    //   Serial.println(sound_table.find(local_octave)->second[inc_vec]);
+    //   Serial.print(",");
+    // }
+    // Serial.println("end");
+  }else{
+    //release
+    sound_array[local_octave] = sound_array[local_octave]-pow(2,key_index);
+    // Serial.print("ERASE ");
+    // Serial.println(key_index);
+    // for (int inc_vec = 0; inc_vec < sound_table.find(local_octave)->second.size(); inc_vec ++ ){
+    //   Serial.print(sound_table.find(local_octave)->second[inc_vec]);
+    //   Serial.print(",");
+    // }
+    // Serial.println("end");
+  }
+  xSemaphoreGive(sound_tableMutex);
+}

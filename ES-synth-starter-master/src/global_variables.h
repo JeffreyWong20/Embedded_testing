@@ -76,6 +76,7 @@ extern volatile bool outBits[8];
 
 
 extern std::map<uint8_t, std::vector<uint16_t> > sound_table; 
+extern uint16_t sound_array[4]; 
 extern std::map<uint8_t, uint8_t> position_table;
 extern volatile bool reorganising;
 extern volatile bool previous_west;

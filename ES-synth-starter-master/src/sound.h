@@ -3,8 +3,8 @@
 #include "knob.cpp"
 #include "sine.cpp"
 
-#ifndef SCAN_H
-#define SCAN_H
+#ifndef SOUND_H
+#define SOUND_H
 
 void scanKeysTask(void *pvParameters);
 void write_to_double_buffer(void *pvParameters);

@@ -11,12 +11,15 @@ void initialize_table(){
   centralOctaveLookUpTable.initializeTable(); 
 }
 
-
 std::map<uint8_t, uint8_t> Table;
-
 const uint8_t octave_freq[8] = {0, 1, 2, 4, 8, 16, 32, 64};
 std::map<uint8_t, std::vector<uint16_t> > local_sound_table; 
 
+
+
+/// @brief 
+/// Base on the global sound table content, compute the required sine wave form
+/// @return 
 int16_t calculate_vout(){
   int32_t tmp_vout = 0;
   uint8_t count = 0;
@@ -25,13 +28,15 @@ int16_t calculate_vout(){
   std::vector<uint16_t> local_pressed_keys;
   // local_keyArray_concatenate = __atomic_load_n(&global_keyArray_concated, __ATOMIC_RELAXED);
   
+  // BUG: The program will not work if i add this copy instruction back.
   // TODO: find a better method than copying
-  xSemaphoreTake(sound_tableMutex, portMAX_DELAY);
-  local_sound_table = sound_table;
-  xSemaphoreGive(sound_tableMutex);
+  // xSemaphoreTake(sound_tableMutex, portMAX_DELAY);
+  // local_sound_table = sound_table;
+  // xSemaphoreGive(sound_tableMutex);
 
- // TODO: find a better method than copying
-  for (auto it = local_sound_table.begin(); it != local_sound_table.end(); ++it) {
+  // BUG: The program will not work if i add Semaphore. : Suspect we cant add semaphore at interrupt
+  xSemaphoreTake(sound_tableMutex, portMAX_DELAY);
+  for (auto it = sound_table.begin(); it != sound_table.end(); ++it) {
     local_pressed_keys = it->second;
     if (!local_pressed_keys.empty()){
       step_size = octave_freq[it->first];
@@ -44,6 +49,7 @@ int16_t calculate_vout(){
       }
     }
   }
+  xSemaphoreGive(sound_tableMutex);
   
   if(count == 0)
     tmp_vout = 0; 
@@ -77,6 +83,30 @@ void write_to_double_buffer(void *pvParameters){
     
 	} 
   // Serial.println("end");
+  }
+}
+
+
+void calculate_output(void *pvParameters){
+  const TickType_t xFrequency = 50/portTICK_PERIOD_MS;
+  TickType_t xLastWakeTime = xTaskGetTickCount();
+  bool initial_write_flag;
+  
+  while(1){
+    vTaskDelayUntil( &xLastWakeTime, xFrequency );
+    // // digitalWrite(LED_BUILTIN, LOW);
+    // digitalWrite(LED_BUILTIN, HIGH);
+
+    initial_write_flag = writeBuffer1;
+    for (uint32_t writeCtr = 0; writeCtr < SAMPLE_BUFFER_SIZE; writeCtr++) {
+      int16_t Vout = calculate_vout(); 
+      if(initial_write_flag == writeBuffer1){
+        if(writeBuffer1){
+          sampleBuffer1[writeCtr] = Vout + 128;}
+        else{
+          sampleBuffer0[writeCtr] = Vout + 128;}
+      }
+    } 
   }
 }
 
