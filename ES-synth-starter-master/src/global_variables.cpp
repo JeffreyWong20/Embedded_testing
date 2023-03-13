@@ -63,7 +63,7 @@ uint32_t local_timestep [12] = {
 };
 volatile uint16_t global_keyArray_concated;
 
-std::map<uint8_t, std::vector<uint16_t> > sound_table; 
+volatile std::map<uint8_t, std::vector<uint16_t> > sound_table; 
 volatile uint16_t sound_array[4]; 
 
 std::map<uint8_t, uint8_t> position_table;
