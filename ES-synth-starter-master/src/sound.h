@@ -1,5 +1,4 @@
 #include "global_variables.h"
-// #include "communication.h"
 #include "knob.cpp"
 #include "sine.cpp"
 

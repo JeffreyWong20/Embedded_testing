@@ -137,6 +137,7 @@ class CentralOctaveLookUpTable{
                 default:
                     break;
                 }
+            return 0;
         }
 
 };

@@ -16,8 +16,6 @@ std::map<uint8_t, uint8_t> Table;
 const uint8_t octave_freq[8] = {0, 1, 2, 4, 8, 16, 32, 64};
 Key local_sound_table [12] = {}; 
 
-
-
 int16_t calculate_vout(){
   int32_t tmp_vout = 0;
   uint8_t count = 0;

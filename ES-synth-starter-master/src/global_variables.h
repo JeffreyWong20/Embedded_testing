@@ -89,10 +89,4 @@ extern Key sound_table [12];
 //setup function
 void setPinDirections();
 
-
-
-
-
-
-
 #endif

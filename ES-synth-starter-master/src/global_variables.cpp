@@ -1,6 +1,5 @@
 #include "global_variables.h"
 
-
 const uint32_t interval = 100; // Display update interval
 
 // Pin definitions
@@ -63,8 +62,8 @@ uint32_t local_timestep [12] = {
 };
 volatile uint16_t global_keyArray_concated;
 
-Key sound_table = {};
-
+// Key sound_table = {};
+Key sound_table [12];
 volatile bool outBits[8] = {false,false,false,true,true,true,true};
 
 
