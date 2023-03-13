@@ -51,16 +51,17 @@ extern const int HKOW_BIT;
 extern const int HKOE_BIT;
 
 // Global variables
-extern const int32_t stepSizes[12];
+extern const uint32_t stepSizes[12];
 extern const char *Key_set[13];
 extern volatile uint8_t octave;
 extern volatile int8_t knob3Rotation;
-extern volatile uint8_t keyArray[7];
+// extern volatile uint8_t keyArray[7];
 extern volatile uint8_t globalTX_Message[8];
 extern volatile uint8_t globalRX_Message[8];
 extern volatile QueueHandle_t msgInQ;
 extern volatile QueueHandle_t msgOutQ;
-extern SemaphoreHandle_t keyArrayMutex;
+
+// extern SemaphoreHandle_t keyArrayMutex;
 extern SemaphoreHandle_t RX_MessageMutex;
 extern SemaphoreHandle_t CAN_TX_Semaphore;
 extern SemaphoreHandle_t sound_tableMutex;
@@ -74,8 +75,9 @@ extern volatile bool outBits[8];
 
 
 //Activating part
+extern bool sawTooth_selected;
 extern uint32_t local_timestep [12];
-const uint16_t SAMPLE_BUFFER_SIZE = 168;
+const uint16_t SAMPLE_BUFFER_SIZE = 800;
 extern uint8_t sampleBuffer0[SAMPLE_BUFFER_SIZE];
 extern uint8_t sampleBuffer1[SAMPLE_BUFFER_SIZE];
 

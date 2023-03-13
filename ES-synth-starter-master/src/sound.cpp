@@ -16,35 +16,50 @@ std::map<uint8_t, uint8_t> Table;
 const uint8_t octave_freq[8] = {0, 1, 2, 4, 8, 16, 32, 64};
 Key local_sound_table [12] = {}; 
 
+
 int16_t calculate_vout(){
   int32_t tmp_vout = 0;
   uint8_t count = 0;
   uint16_t step_size = 0;
   uint8_t key_index = 0;
+  static uint32_t phaseAcc = 0;
+
   xSemaphoreTake(sound_tableMutex, portMAX_DELAY);
-    std::copy(local_sound_table, local_sound_table+12, sound_table);
+  std::copy(sound_table, sound_table+12, local_sound_table);
   xSemaphoreGive(sound_tableMutex);
 
-  for (int i = 0; i < 12 ; i++) {
-      if (local_sound_table[i].key_index == 0) continue;
-      key_index = local_sound_table[i].key_index;
-      step_size = octave_freq[local_sound_table[i].octave];
-      local_timestep[key_index] += step_size;
-      if(local_timestep[key_index] >= tableSizes[key_index]) local_timestep[key_index] = 0;
-      tmp_vout += centralOctaveLookUpTable.accessTable(key_index,local_timestep[key_index]);
-      count += 1;
-  }
+  if(sawTooth_selected){
+    for (int i = 0; i < 12 ; i++) {
+        if (local_sound_table[i].key_index == 0) continue;
+        key_index = local_sound_table[i].key_index - 1;
+        tmp_vout += (stepSizes[key_index]*octave);
+        count += 1;
+    }
+    if(count == 0) tmp_vout = 0; 
+    else tmp_vout = tmp_vout/count;
+    phaseAcc+=tmp_vout;
+    return phaseAcc;
   
-  if(count == 0)
-    tmp_vout = 0; 
-  else 
-    tmp_vout = tmp_vout/count;
-  return tmp_vout;
+  }else{
+    for (int i = 0; i < 12 ; i++) {
+        if (local_sound_table[i].key_index == 0) continue;
+        key_index = local_sound_table[i].key_index - 1;
+        step_size = octave_freq[local_sound_table[i].octave];
+        local_timestep[key_index] += step_size;
+        if(local_timestep[key_index] >= tableSizes[key_index]) local_timestep[key_index] = 0;
+        tmp_vout += centralOctaveLookUpTable.accessTable(key_index,local_timestep[key_index]);
+        count += 1;
+    }
+    if(count == 0) tmp_vout = 0; 
+    else tmp_vout = tmp_vout/count;
+    return tmp_vout;
+  }
+
 }
 
 
 void write_to_double_buffer(void *pvParameters){
-  const TickType_t xFrequency = 50/portTICK_PERIOD_MS;
+  const TickType_t xFrequency = 20/portTICK_PERIOD_MS;
   TickType_t xLastWakeTime = xTaskGetTickCount();
   bool initial_write_flag;
   
@@ -55,8 +70,8 @@ void write_to_double_buffer(void *pvParameters){
 	for (uint32_t writeCtr = 0; writeCtr < SAMPLE_BUFFER_SIZE; writeCtr++) {
 		int16_t Vout = calculate_vout(); 
     if(initial_write_flag == writeBuffer1){
-      if(writeBuffer1){sampleBuffer1[writeCtr] = Vout + 128;}
-      else{sampleBuffer0[writeCtr] = Vout + 128;}
+      if(writeBuffer1){sampleBuffer1[writeCtr] = (Vout >> (8-knob3Rotation) )+ 128;}
+      else{sampleBuffer0[writeCtr] = (Vout >> (8-knob3Rotation) )+ 128;}
     }
 	} 
   }

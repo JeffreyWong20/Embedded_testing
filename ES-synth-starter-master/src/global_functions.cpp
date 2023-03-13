@@ -16,6 +16,7 @@ void modified_soundMap(uint8_t local_octave, uint8_t key_index, bool append){
     }
 
   }else{
+
     for (int g = 0; g < 12 ;g++){
       if (sound_table[g].key_index == key_index){
         sound_table[g].key_index = 0;

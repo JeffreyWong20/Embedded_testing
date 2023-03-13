@@ -4,8 +4,7 @@
 #include <iostream>
 #include <string>
 
-
-class knob { 
+class Knob { 
     private:  
         uint8_t previous_state;
 
@@ -15,7 +14,14 @@ class knob {
         uint8_t maxRotationValue;
         uint8_t minRotationValue; 
 
-    public:            
+    public:   
+        Knob(){     
+            previous_state = 0;
+            rotation_state = 0;
+            rotation_direction = 0;
+            maxRotationValue = 8;
+            minRotationValue = 0;
+        }         
 
         void updateRotationValue(uint8_t current_state) {  
            
@@ -79,7 +85,7 @@ class knob {
             minRotationValue = minRotationValue;
         }
 
-        uint8_t getRotationValue() { 
-            return previous_state;
+        int8_t getRotationValue() { 
+            return rotation_state;
         }
 };

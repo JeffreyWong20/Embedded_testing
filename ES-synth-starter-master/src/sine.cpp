@@ -5,9 +5,23 @@
 #include <STM32FreeRTOS.h>
 # define M_PI           3.14159265358979323846
 
+// const int32_t tableSizes [] = { 
+//     673,
+//     635,
+//     599,
+//     566,
+//     534,
+//     504,
+//     476,
+//     449,
+//     424,
+//     400,
+//     378,
+//     356
+// };
 
 const int32_t tableSizes [] = { 
-     // we have to know the size at comile time.
+
     84,
     79,
     75,
@@ -22,11 +36,25 @@ const int32_t tableSizes [] = {
     45
 };
 
+
 // ------------------------------------------------------------------------------
 class CentralOctaveLookUpTable{
     private:
     // There sizes have to be manually calculated. :(
 
+    // int32_t C[673];
+    // int32_t C_sharp[635];
+    // int32_t D[599];
+    // int32_t D_sharp[566];
+    // int32_t E[534];
+    // int32_t F[504];
+    // int32_t F_sharp[476];
+    // int32_t G[449];
+    // int32_t G_sharp[424];
+    // int32_t A[400];
+    // int32_t A_sharp[378];
+    // int32_t B[356];
+    //     // There sizes have to be manually calculated. :(
     int32_t C[84];
     int32_t C_sharp[79];
     int32_t D[75];
@@ -40,6 +68,21 @@ class CentralOctaveLookUpTable{
     int32_t A_sharp[47];
     int32_t B[45];
 
+
+    // const float baseHz[12] = { 
+    //     32.7,
+    //     34.6,
+    //     36.7,
+    //     38.9,
+    //     41.2,
+    //     43.7,
+    //     46.2,
+    //     49.0,
+    //     51.9,
+    //     55.0,
+    //     58.3,
+    //     61.7
+    // };
     const int32_t baseHz[12] = { 
         261,
         277,

@@ -32,25 +32,49 @@ const int HKOE_BIT = 6;
 
 // Constants for the global
 
+
+volatile uint16_t global_keyArray_concated;
+
+
+
+//Key 
 const char * Key_set[13] = {"Not Pressed", "C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"};
+// volatile uint8_t keyArray[7] = {0};
+// SemaphoreHandle_t keyArrayMutex;
 
-volatile uint8_t octave = 1;
+const uint32_t stepSizes [12] = { 
+  51076056,
+  54113197,
+  57330935,
+  60740010,
+  64351798,
+  68178356,
+  72232452,
+  76527617,
+  81078186,
+  85899345,
+  91007186,
+  96418755
+ };
 
-volatile int8_t knob3Rotation = 0;
-volatile uint8_t keyArray[7] = {0};
-volatile uint8_t globalTX_Message[8]={0};
+//Communication
+
 volatile uint8_t globalRX_Message[8]={0};
-
+volatile uint8_t globalTX_Message[8]={0};
 volatile QueueHandle_t msgInQ;
 volatile QueueHandle_t msgOutQ;
-
-SemaphoreHandle_t keyArrayMutex;
 SemaphoreHandle_t RX_MessageMutex;
 SemaphoreHandle_t CAN_TX_Semaphore;
+
+
+// Rotation Knob
+volatile int8_t knob3Rotation = 0;
+
+// Sound 
+bool sawTooth_selected = false;
+volatile uint8_t octave = 1;
 SemaphoreHandle_t sound_tableMutex;
-
 SemaphoreHandle_t sampleBufferSemaphore;
-
 uint8_t sampleBuffer0[SAMPLE_BUFFER_SIZE];
 uint8_t sampleBuffer1[SAMPLE_BUFFER_SIZE];
 volatile bool writeBuffer1 = false;
@@ -60,9 +84,7 @@ uint32_t local_timestep [12] = {
     0, 0, 0, 0,
     0, 0, 0, 0
 };
-volatile uint16_t global_keyArray_concated;
 
-// Key sound_table = {};
 Key sound_table [12];
 volatile bool outBits[8] = {false,false,false,true,true,true,true};
 
