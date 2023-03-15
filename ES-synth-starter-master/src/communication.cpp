@@ -18,11 +18,23 @@ void decodeTask(void *pvParameters){
         uint8_t first_message_bit = localRX_Message[0];
         uint8_t octave_number = localRX_Message[1];
         uint8_t note_number = localRX_Message[2];
+        
         if (first_message_bit == 'P'){
             modified_soundMap(octave_number, note_number, true);
         }
         else if(first_message_bit == 'R'){
             modified_soundMap(octave_number, note_number, false);
+        }
+        else if (first_message_bit == 'S'){
+            if (configFlag == false){
+                configFlag = true;
+            }
+        }
+        else if (first_message_bit == 'L'){
+            positionTable[localRX_Message[1]] = localRX_Message[2];
+        }
+        else if (first_message_bit == 'E'){
+            endConfigFlag = true;
         }
         #ifdef TEST_DECODE
         break;
@@ -44,22 +56,33 @@ void CAN_TX_Task (void * pvParameters) {
 	}
 }
 
-void sendMessage(int8_t index, bool press){
-    if (press){
-        // pressed
-        TX_Message[0] = 'P';
-        TX_Message[1] = __atomic_load_n(&octave,__ATOMIC_RELAXED);
-        TX_Message[2] = index;
-    }
-    else{
-        // released
-        TX_Message[0] = 'R';
-        TX_Message[1] = __atomic_load_n(&octave,__ATOMIC_RELAXED);
-        TX_Message[2] = index;
-    }
+void sendMessage(uint8_t msg0, uint8_t msg1, uint8_t msg2){
+    TX_Message[0] = msg0;
+    TX_Message[1] = msg1;
+    TX_Message[2] = msg2;
     xQueueSend( msgOutQ, TX_Message, portMAX_DELAY);
     std::copy(TX_Message, TX_Message + 8, globalTX_Message); 
-} 
+}
+
+// void sendMessage(int8_t index, bool press){
+//     if (press){
+//         // pressed
+//         TX_Message[0] = 'P';
+//         TX_Message[1] = __atomic_load_n(&octave,__ATOMIC_RELAXED);
+//         TX_Message[2] = index;
+//     }
+//     else{
+//         // released
+//         TX_Message[0] = 'R';
+//         TX_Message[1] = __atomic_load_n(&octave,__ATOMIC_RELAXED);
+//         TX_Message[2] = index;
+//     }
+//     xQueueSend( msgOutQ, TX_Message, portMAX_DELAY);
+//     std::copy(TX_Message, TX_Message + 8, globalTX_Message); 
+// } 
+
+
+
 
 
 void CAN_RX_ISR(void) {

@@ -40,6 +40,7 @@ void scanKeysTask(void *pvParameters)
   uint32_t xor_keys;
   uint8_t local_octave;
   bool pressed;
+  uint8_t count = 0;
 
   while (1) {
     # ifndef TEST_SCANKEYS
@@ -52,7 +53,9 @@ void scanKeysTask(void *pvParameters)
         delayMicroseconds(3);
         localkeyArray[i] = readCols();
     }
-    
+    xSemaphoreTake(westeastArrayMutex, portMAX_DELAY);
+    std::copy(localkeyArray + 5,localkeyArray+7,westeastArray);
+    xSemaphoreGive(westeastArrayMutex);
     // joystickx_out = 512 - analogRead(JOYX_PIN);
     // if(joystickx_out > 200 | joystickx_out < -200){
     //   if(previous_sawTooth_selected){
@@ -81,12 +84,19 @@ void scanKeysTask(void *pvParameters)
         if ((xor_keys & 1) == 1){
           pressed = !(current_keys_shifted & 1);
           modified_soundMap(local_octave, i, pressed);
-          sendMessage(i, pressed);
+          if (local_octave != 4){
+            // sendMessage(i, pressed);
+            if(pressed){
+              sendMessage('P', local_octave, i);
+            }
+            else{
+              sendMessage('R', local_octave, i);
+            }
+          }
         }
         xor_keys = xor_keys >> 1;
         current_keys_shifted = current_keys_shifted >> 1;
       }
-
       /// set it to previous_keys in the end. And only if current_keys is different from previous_keys
       previous_keys = current_keys; 
     }
@@ -96,6 +106,24 @@ void scanKeysTask(void *pvParameters)
     knob3_current_val = localkeyArray[3] & 3 ;
     knob3.updateRotationValue(knob3_current_val);
     knob3Rotation = knob3.getRotationValue();
+
+    //
+    if (count == 0){
+      // previous_west = !(previouslocalkeyArray[5] >> 3);
+      // previous_east = !(previouslocalkeyArray[6] >> 3);
+      previous_west = !(localkeyArray[5] >> 3);
+      previous_east = !(localkeyArray[6] >> 3);
+      count += 1;
+    }
+
+    if (configFlag == false){
+      uint8_t current_west = !(localkeyArray[5] >> 3);
+      uint8_t current_east = !(localkeyArray[6] >> 3);
+      if ((previous_west != current_west) || (previous_east != current_east)){
+        sendMessage('S',0,0);
+        configFlag = true;
+      }  
+    }
 
     #ifdef TEST_SCANKEYS
     break;

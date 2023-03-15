@@ -65,8 +65,11 @@ extern volatile QueueHandle_t msgOutQ;
 extern SemaphoreHandle_t RX_MessageMutex;
 extern SemaphoreHandle_t CAN_TX_Semaphore;
 extern SemaphoreHandle_t sound_tableMutex;
-
 extern SemaphoreHandle_t sampleBufferSemaphore;
+extern SemaphoreHandle_t westeastArrayMutex;
+
+
+
 extern volatile uint16_t global_keyArray_concated;
 
 extern volatile bool writeBuffer1;
@@ -76,7 +79,7 @@ extern volatile bool outBits[8];
 
 //Activating part
 extern bool sawTooth_selected;
-extern uint32_t local_timestep [12];
+extern float local_timestep [12];
 const uint16_t SAMPLE_BUFFER_SIZE = 800;
 extern uint8_t sampleBuffer0[SAMPLE_BUFFER_SIZE];
 extern uint8_t sampleBuffer1[SAMPLE_BUFFER_SIZE];
@@ -87,6 +90,18 @@ struct Key {
 };
 
 extern Key sound_table [12];
+
+// config
+extern uint8_t ownID;
+extern volatile uint8_t previous_west;
+extern volatile uint8_t previous_east;
+
+extern volatile bool configFlag;
+extern volatile bool endConfigFlag;
+
+extern std::map<uint8_t, uint8_t> positionTable;
+extern volatile uint8_t westeastArray[2];
+
 
 //setup function
 void setPinDirections();

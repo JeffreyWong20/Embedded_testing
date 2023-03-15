@@ -9,7 +9,8 @@
 #include "sound.h"
 #include "display.h"
 #include "scan.h"
-  
+#include "config.h"
+
 // Display Sound and scan key TODO
   // volatile uint8_t element;
   // DAC_HandleTypeDef hdac;
@@ -45,6 +46,9 @@ void setup() {
 
   initialiseDisplay();
 
+  // get ID for config ordering
+  ownID = getHashedID();
+
   // Timer Setting
   sampleTimer->setOverflow(22000, HERTZ_FORMAT);
   sampleTimer->attachInterrupt(sampleISR);
@@ -56,8 +60,11 @@ void setup() {
 // Declare Semaphore
   sound_tableMutex = xSemaphoreCreateMutex();
   RX_MessageMutex = xSemaphoreCreateMutex();
+  westeastArrayMutex = xSemaphoreCreateMutex();
   CAN_TX_Semaphore = xSemaphoreCreateCounting(3,3);
   sampleBufferSemaphore = xSemaphoreCreateBinary();
+
+
   xSemaphoreGive(sampleBufferSemaphore);
   // xSemaphoreGive(RX_MessageMutex);
 
@@ -67,17 +74,19 @@ void setup() {
   TaskHandle_t write_to_double = NULL;
   TaskHandle_t transmitHandle = NULL;
   TaskHandle_t decodeHandle = NULL;
+  TaskHandle_t configHandle = NULL;
 
+  xTaskCreate(decodeTask, "decode", 256, NULL, 2, &decodeHandle);   
 
-  // xTaskCreate(decodeTask, "decode", 256, NULL, 2, &decodeHandle);   
+  xTaskCreate(CAN_TX_Task, "transmit", 256, NULL, 3, &transmitHandle); 
 
-  // xTaskCreate(CAN_TX_Task, "transmit", 256, NULL, 3, &transmitHandle); 
+  xTaskCreate(scanKeysTask,           "scanKeys", 64, NULL,4, &scanKeysHandle);  
 
-  xTaskCreate(scanKeysTask,           "scanKeys", 64, NULL,5, &scanKeysHandle);  
+  xTaskCreate(displayUpdateTask,      "displayKeys",128,NULL,1,&displayKeysHandle );
 
-  xTaskCreate(displayUpdateTask,      "displayKeys",128,NULL,0,&displayKeysHandle );
-
-  xTaskCreate(write_to_double_buffer, "write_to_buffer",256,NULL,5,&write_to_double);  
+  xTaskCreate(write_to_double_buffer, "write_to_buffer",256,NULL,4,&write_to_double);  
+  
+  xTaskCreate(configTask, "config",64,NULL,1,&configHandle);  
 
 
   vTaskStartScheduler();

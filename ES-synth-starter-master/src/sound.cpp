@@ -13,14 +13,14 @@ void initialize_table(){
 
 
 std::map<uint8_t, uint8_t> Table;
-const uint8_t octave_freq[8] = {0, 1, 2, 4, 8, 16, 32, 64};
+const float octave_freq[8] = {0, 0.125, 0.25, 0.5, 1, 2, 4, 8};
 Key local_sound_table [12] = {}; 
 
 
 int16_t calculate_vout(){
   int32_t tmp_vout = 0;
   uint8_t count = 0;
-  uint16_t step_size = 0;
+  float step_size = 0;
   uint8_t key_index = 0;
   static uint32_t phaseAcc = 0;
 
@@ -46,8 +46,14 @@ int16_t calculate_vout(){
         key_index = local_sound_table[i].key_index - 1;
         step_size = octave_freq[local_sound_table[i].octave];
         local_timestep[key_index] += step_size;
+        // Serial.println(local_timestep[key_index]);
+        // Serial.println("G");
+        // Serial.println(std::round(local_timestep[key_index]));
+       
         if(local_timestep[key_index] >= tableSizes[key_index]) local_timestep[key_index] = 0;
-        tmp_vout += centralOctaveLookUpTable.accessTable(key_index,local_timestep[key_index]);
+        //Serial.println(std::round(local_timestep[key_index]));
+        tmp_vout += centralOctaveLookUpTable.accessTable(key_index,std::round(local_timestep[key_index]));
+        //Serial.println(tmp_vout);
         count += 1;
     }
     if(count == 0) tmp_vout = 0; 

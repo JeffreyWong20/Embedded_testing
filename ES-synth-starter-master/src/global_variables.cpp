@@ -72,14 +72,16 @@ volatile int8_t knob3Rotation = 0;
 
 // Sound 
 bool sawTooth_selected = false;
-volatile uint8_t octave = 1;
+volatile uint8_t octave = 2;
 SemaphoreHandle_t sound_tableMutex;
 SemaphoreHandle_t sampleBufferSemaphore;
+
+
 uint8_t sampleBuffer0[SAMPLE_BUFFER_SIZE];
 uint8_t sampleBuffer1[SAMPLE_BUFFER_SIZE];
 volatile bool writeBuffer1 = false;
 
-uint32_t local_timestep [12] = {
+float local_timestep [12] = {
     0, 0, 0, 0,
     0, 0, 0, 0,
     0, 0, 0, 0
@@ -88,7 +90,19 @@ uint32_t local_timestep [12] = {
 Key sound_table [12];
 volatile bool outBits[8] = {false,false,false,true,true,true,true};
 
+// config
+uint8_t ownID;
+volatile uint8_t previous_west;
+volatile uint8_t previous_east;
 
+volatile bool configFlag = true;
+volatile bool endConfigFlag = false;
+
+std::map<uint8_t, uint8_t> positionTable;
+SemaphoreHandle_t westeastArrayMutex;
+volatile uint8_t westeastArray[2];
+
+// set pin
 void setPinDirections(){
   pinMode(RA0_PIN, OUTPUT);
   pinMode(RA1_PIN, OUTPUT);
