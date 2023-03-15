@@ -35,13 +35,11 @@ void scanKeysTask(void *pvParameters)
   uint32_t previous_keys = 4095;
   uint32_t current_keys;
   uint32_t current_keys_shifted;
-  int32_t joystickx_out;
-  int32_t previous_sawTooth_selected;
+  // int32_t joystickx_out;
+  // int32_t previous_sawTooth_selected;
   uint32_t xor_keys;
   uint8_t local_octave;
   bool pressed;
-
-  std::vector<uint16_t> local_pressed_keys;
 
   while (1) {
     # ifndef TEST_SCANKEYS
@@ -55,14 +53,14 @@ void scanKeysTask(void *pvParameters)
         localkeyArray[i] = readCols();
     }
     
-    joystickx_out = 512 - analogRead(JOYX_PIN);
-    if(joystickx_out > 200 | joystickx_out < -200){
-      if(previous_sawTooth_selected){
-      previous_sawTooth_selected = 0;
-      sawTooth_selected = !sawTooth_selected;}
-    }else{
-      previous_sawTooth_selected = 1;
-    }
+    // joystickx_out = 512 - analogRead(JOYX_PIN);
+    // if(joystickx_out > 200 | joystickx_out < -200){
+    //   if(previous_sawTooth_selected){
+    //   previous_sawTooth_selected = 0;
+    //   sawTooth_selected = !sawTooth_selected;}
+    // }else{
+    //   previous_sawTooth_selected = 1;
+    // }
 
 
     /// send message if any key changed
@@ -78,6 +76,7 @@ void scanKeysTask(void *pvParameters)
     
     if ((xor_keys) != 0){
       local_octave = __atomic_load_n(&octave, __ATOMIC_RELAXED);
+    
       for (int i = 1; i < 13; i++){
         if ((xor_keys & 1) == 1){
           pressed = !(current_keys_shifted & 1);
@@ -87,6 +86,7 @@ void scanKeysTask(void *pvParameters)
         xor_keys = xor_keys >> 1;
         current_keys_shifted = current_keys_shifted >> 1;
       }
+
       /// set it to previous_keys in the end. And only if current_keys is different from previous_keys
       previous_keys = current_keys; 
     }

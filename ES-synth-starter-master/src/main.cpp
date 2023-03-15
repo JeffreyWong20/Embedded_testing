@@ -16,7 +16,6 @@
 
 void sampleISR() {
   static uint32_t readCtr = 0;
-
   if (readCtr == SAMPLE_BUFFER_SIZE) {
     // xSemaphoreTakeFromISR(sampleBufferSemaphore, NULL);
     readCtr = 0;
@@ -52,7 +51,6 @@ void setup() {
   sampleTimer->resume();
   Serial.print("Inity");
   initialize_table();
-  
   initializeCAN();
   
 // Declare Semaphore
@@ -70,13 +68,14 @@ void setup() {
   TaskHandle_t transmitHandle = NULL;
   TaskHandle_t decodeHandle = NULL;
 
-  xTaskCreate(decodeTask, "decode", 256, NULL, 2, &decodeHandle);   
 
-  xTaskCreate(CAN_TX_Task, "transmit", 256, NULL, 3, &transmitHandle); 
+  // xTaskCreate(decodeTask, "decode", 256, NULL, 2, &decodeHandle);   
 
-  xTaskCreate(scanKeysTask, "scanKeys", 64, NULL,5, &scanKeysHandle);  
+  // xTaskCreate(CAN_TX_Task, "transmit", 256, NULL, 3, &transmitHandle); 
 
-  xTaskCreate(displayUpdateTask,"displayKeys",128,NULL,0,&displayKeysHandle );
+  xTaskCreate(scanKeysTask,           "scanKeys", 64, NULL,5, &scanKeysHandle);  
+
+  xTaskCreate(displayUpdateTask,      "displayKeys",128,NULL,0,&displayKeysHandle );
 
   xTaskCreate(write_to_double_buffer, "write_to_buffer",256,NULL,5,&write_to_double);  
 

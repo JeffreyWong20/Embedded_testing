@@ -28,19 +28,19 @@ int16_t calculate_vout(){
   std::copy(sound_table, sound_table+12, local_sound_table);
   xSemaphoreGive(sound_tableMutex);
 
-  if(sawTooth_selected){
-    for (int i = 0; i < 12 ; i++) {
-        if (local_sound_table[i].key_index == 0) continue;
-        key_index = local_sound_table[i].key_index - 1;
-        tmp_vout += (stepSizes[key_index]*octave);
-        count += 1;
-    }
-    if(count == 0) tmp_vout = 0; 
-    else tmp_vout = tmp_vout/count;
-    phaseAcc+=tmp_vout;
-    return phaseAcc;
+  // if(sawTooth_selected){
+  //   for (int i = 0; i < 12 ; i++) {
+  //       if (local_sound_table[i].key_index == 0) continue;
+  //       key_index = local_sound_table[i].key_index - 1;
+  //       tmp_vout += (stepSizes[key_index]*octave);
+  //       count += 1;
+  //   }
+  //   if(count == 0) tmp_vout = 0; 
+  //   else tmp_vout = tmp_vout/count;
+  //   phaseAcc+=tmp_vout;
+  //   return phaseAcc;
   
-  }else{
+  // }else{
     for (int i = 0; i < 12 ; i++) {
         if (local_sound_table[i].key_index == 0) continue;
         key_index = local_sound_table[i].key_index - 1;
@@ -53,7 +53,7 @@ int16_t calculate_vout(){
     if(count == 0) tmp_vout = 0; 
     else tmp_vout = tmp_vout/count;
     return tmp_vout;
-  }
+  // }
 
 }
 
