@@ -11,8 +11,13 @@
 // #define DISABLE_THREADS
 // #define TEST_SCANKEYS
 // #define TEST_DISPLAY
-// # define TEST_DECODE
-// # define TEST_TRANSMIT
+// #define TEST_DECODE
+// #define TEST_TRANSMIT
+// #define TEST_CONFIG
+// #define TEST_JOYSTICK
+// #define TEST_SAMPLEISR
+// #define TEST_BUFFER
+// #define SAWTooth_selected
 
 
 #ifndef GLOBAL_VARIABLES_H
@@ -102,6 +107,11 @@ extern volatile bool endConfigFlag;
 extern std::map<uint8_t, uint8_t> positionTable;
 extern volatile uint8_t westeastArray[2];
 
+// set receiver
+extern bool main_speaker;
+
+// mute
+extern bool mute;
 
 //setup function
 void setPinDirections();

@@ -1,24 +1,59 @@
-// #include"global_variables.h"
+#include"joystick.h"
 
 // int joystick1 = 512, joystick2 = 512;  
+// int32_t joystickx_out;
+// int32_t previous_sawTooth_selected;
 
-// void joystickTask(void * pvParameters) {
-//   const TickType_t xFrequency = 10/portTICK_PERIOD_MS;
+/// @brief 
+/// JoystickTask 
+/// This is a seperate task because analogRead take too much time.
+/// @param pvParameters 
+void joystickTask(void *pvParameters){
+  int32_t joystickx_out;
+  int32_t previous_sawTooth_selected;
+
+  const TickType_t xFrequency = 10/portTICK_PERIOD_MS;
+  TickType_t xLastWakeTime= xTaskGetTickCount();
+  while(1) {
+    # ifndef TEST_JOYSTICK
+      vTaskDelayUntil(&xLastWakeTime, xFrequency);
+    # endif
+    joystickx_out = 512 - analogRead(JOYX_PIN);
+    if(joystickx_out > 200 | joystickx_out < -200){
+        if(previous_sawTooth_selected){
+            previous_sawTooth_selected = 0;
+            sawTooth_selected = !sawTooth_selected;
+          }
+        }else{
+            previous_sawTooth_selected = 1;
+        }
+    //Serial.print(sawTooth_selected);
+      # ifdef TEST_JOYSTICK
+      break;
+      #endif
+  }
+  
+}
+
+
+// void joystickTask(void *pvParameters){
+//     int32_t joystickx_out;
+//     int32_t previous_sawTooth_selected;
+//     bool previous_direction;
+//   const TickType_t xFrequency = 1000/portTICK_PERIOD_MS;
 //   TickType_t xLastWakeTime= xTaskGetTickCount();
 //   while(1) {
 //     vTaskDelayUntil(&xLastWakeTime, xFrequency);
+//     joystickx_out = 512 - analogRead(JOYX_PIN);
+//     if(joystickx_out > 200){
+//         if(!previous_direction){
+//             previous_direction = 0;
+//             sawTooth_val += 1;
+//             }
+//         }
+//      else if (joystickx_out < 200){
 
-//     // Read joytick y axis and update vibrato value
-//     joystick1 = 512 - analogRead(JOYX_PIN);
-//     joystick1 = abs(joystick1) / 100;
-//     Serial.print(joystick1);
-//     // __atomic_store_n(&vibrato_amp, joystick1, __ATOMIC_RELAXED);
-//     // __atomic_store_n(&vibrato_freq, 4 * joystick1, __ATOMIC_RELAXED);
-
-//     // Read joytick x axis and update tremolo value
-//     joystick2 = 512 - analogRead(JOYY_PIN);
-//     joystick2 = abs(joystick2) / 100;
-//     // __atomic_store_n(&tremolo_freq, 10, __ATOMIC_RELAXED);
-//     // __atomic_store_n(&tremolo_amp, 0.2 * joystick2, __ATOMIC_RELAXED);
+//}    
+//     //Serial.print(sawTooth_selected);
 //   }
 // }

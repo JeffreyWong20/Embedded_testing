@@ -72,7 +72,7 @@ volatile int8_t knob3Rotation = 0;
 
 // Sound 
 bool sawTooth_selected = false;
-volatile uint8_t octave = 2;
+volatile uint8_t octave;
 SemaphoreHandle_t sound_tableMutex;
 SemaphoreHandle_t sampleBufferSemaphore;
 
@@ -101,6 +101,12 @@ volatile bool endConfigFlag = false;
 std::map<uint8_t, uint8_t> positionTable;
 SemaphoreHandle_t westeastArrayMutex;
 volatile uint8_t westeastArray[2];
+
+// set receiver
+bool main_speaker = false;
+
+// mute
+bool mute = false;
 
 // set pin
 void setPinDirections(){

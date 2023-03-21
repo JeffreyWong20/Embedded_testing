@@ -2,7 +2,11 @@
 
 
 Knob knob3;
+Knob knob2;
 
+/// @brief
+/// Return a 4-bit value (C3 | C2 | C1 | C0)
+/// @return 
 uint8_t readCols()
 {
   uint8_t C0 = digitalRead(C0_PIN);
@@ -13,6 +17,10 @@ uint8_t readCols()
   return concate_result;
 }
 
+
+/// @brief
+/// Selecting which row to detect.
+/// @return 
 void setRow(uint8_t rowIdx)
 {
   digitalWrite(REN_PIN, LOW);
@@ -31,16 +39,20 @@ void scanKeysTask(void *pvParameters)
   TickType_t xLastWakeTime = xTaskGetTickCount();
   // xLastWakeTime will store the time (tick count) of the last initiation.
   uint8_t knob3_current_val;
+  // A bool
+  uint8_t knob3_pressed;
+  uint8_t knob2_pressed;
+  /// A 8x4 matrix, represented at array of eight 4-bit value.
   uint8_t localkeyArray[7];
   uint32_t previous_keys = 4095;
   uint32_t current_keys;
   uint32_t current_keys_shifted;
-  // int32_t joystickx_out;
-  // int32_t previous_sawTooth_selected;
   uint32_t xor_keys;
   uint8_t local_octave;
   bool pressed;
   uint8_t count = 0;
+  uint8_t previous_knob3_pressed = 0;
+  uint8_t previous_knob2_pressed = 0;
 
   while (1) {
     # ifndef TEST_SCANKEYS
@@ -49,29 +61,23 @@ void scanKeysTask(void *pvParameters)
     // vTaskDelayUntil blocks execution of the thread until xFrequency ticks have happened since the last execution of the loop.
     for (uint8_t i = 0; i < 7; i++){
         setRow(i);
-        // digitalWrite(OUT_PIN, outBits[i]); //output handshake signal
+        digitalWrite(OUT_PIN, outBits[i]); //output handshake signal
         delayMicroseconds(3);
         localkeyArray[i] = readCols();
     }
+
     xSemaphoreTake(westeastArrayMutex, portMAX_DELAY);
     std::copy(localkeyArray + 5,localkeyArray+7,westeastArray);
     xSemaphoreGive(westeastArrayMutex);
-    // joystickx_out = 512 - analogRead(JOYX_PIN);
-    // if(joystickx_out > 200 | joystickx_out < -200){
-    //   if(previous_sawTooth_selected){
-    //   previous_sawTooth_selected = 0;
-    //   sawTooth_selected = !sawTooth_selected;}
-    // }else{
-    //   previous_sawTooth_selected = 1;
-    // }
-
+   
 
     /// send message if any key changed
     current_keys = localkeyArray[2] << 8 | localkeyArray[1] << 4 | localkeyArray[0];
     xor_keys = current_keys ^ previous_keys;
-    // for sound output
+
+    
     # ifdef TEST_SCANKEYS
-    xor_keys = 1;
+    xor_keys = 0b111111111111; // to send sound message for all keys
     # endif
     
     /// modified sound map for local key press 
@@ -84,15 +90,14 @@ void scanKeysTask(void *pvParameters)
         if ((xor_keys & 1) == 1){
           pressed = !(current_keys_shifted & 1);
           modified_soundMap(local_octave, i, pressed);
-          if (local_octave != 4){
-            // sendMessage(i, pressed);
-            if(pressed){
-              sendMessage('P', local_octave, i);
-            }
-            else{
-              sendMessage('R', local_octave, i);
-            }
+         
+          if(pressed){
+            sendMessage('P', local_octave, i);
           }
+          else{
+            sendMessage('R', local_octave, i);
+          }
+        
         }
         xor_keys = xor_keys >> 1;
         current_keys_shifted = current_keys_shifted >> 1;
@@ -100,14 +105,36 @@ void scanKeysTask(void *pvParameters)
       /// set it to previous_keys in the end. And only if current_keys is different from previous_keys
       previous_keys = current_keys; 
     }
-
-
     /// detect knob rotation
     knob3_current_val = localkeyArray[3] & 3 ;
     knob3.updateRotationValue(knob3_current_val);
     knob3Rotation = knob3.getRotationValue();
 
-    //
+    /// detect knob pressed
+    knob3_pressed = (localkeyArray[5] & 2) >> 1; // Knob 3 S 
+    if ((previous_knob3_pressed == 0) & (knob3_pressed==1) ){
+      // send if button is pressed
+      main_speaker = true;
+      sendMessage('M', 0, 0);
+    }
+    previous_knob3_pressed = knob3_pressed;
+
+    /// detect knob press - for muting
+    knob2_pressed = (localkeyArray[5] & 1); // Knob 2 S 
+    if ((previous_knob2_pressed == 0) & (knob2_pressed==1) ){
+      // send if button is pressed
+      if (mute == true){
+        sendMessage('U', 0, 0);
+        mute = false;
+      }
+      else{
+        sendMessage('U', 1, 0);
+        mute = true;
+      }
+    }
+    previous_knob2_pressed = knob2_pressed;
+
+  
     if (count == 0){
       // previous_west = !(previouslocalkeyArray[5] >> 3);
       // previous_east = !(previouslocalkeyArray[6] >> 3);
